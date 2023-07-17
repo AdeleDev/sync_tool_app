@@ -1,0 +1,27 @@
+version: '2'
+services:
+  #  backend:
+  #    container_name: backend-server
+  #    image:
+  #    ports:
+  #      - "8080:8080"
+  #    volumes:
+  #      - db:/data
+  #  frontend:
+  #    container_name: frontend-server
+  #    image:
+  #    ports:
+  #      - "3000:80"
+  mongo-express:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+      MONGO_INITDB_DATABASE: test
+    volumes:
+      - mongodb_data_container:/data/db
+
+volumes:
+  mongodb_data_container:

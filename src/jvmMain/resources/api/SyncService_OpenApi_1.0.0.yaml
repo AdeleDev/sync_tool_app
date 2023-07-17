@@ -1,0 +1,318 @@
+openapi: 3.0.3
+info:
+  title: Scorewarrior synchronise service
+  description: API for tool that streamlines interaction of game designers and artists
+  version: 1.0.0
+servers:
+  - url: 'https://scorewarrior.sync.service.com/v1'
+  - url: 'http://scorewarrior.sync.service.com/v1'
+tags:
+  - name: Entity
+    description: Information about heroes and weapons
+paths:
+  '/entity/{type}':
+    put:
+      tags:
+        - entity
+      summary: Update an existing entity profile
+      operationId: updateEntity
+      parameters:
+        - name: type
+          in: path
+          description: Name of entity to return
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update profile
+        content:
+          multipart/form-data:
+            schema:
+              oneOf: 
+                - $ref: '#/components/schemas/Hero'
+                - $ref: '#/components/schemas/Weapon'
+        required: true
+      responses:
+        '200':
+          description: Updated
+          content: { }
+        '404':
+          description: Entity not found
+          content: { }
+        '405':
+          description: Validation exception
+          content: { }
+      x-codegen-request-body-name: body
+    post:
+      tags:
+        - entity
+      summary: Add a new entity profile
+      operationId: addEntity
+      parameters:
+        - name: type
+          in: path
+          description: Type of entity to return
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Add a new entity profile
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/Hero'
+                - $ref: '#/components/schemas/Weapon'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    description: Link on the created entity
+        '405':
+          description: Invalid input
+          content: { }
+      x-codegen-request-body-name: body
+    get:
+      tags:
+        - entity
+      summary: Find all existing entities
+      operationId: getAllEntitties
+      parameters:
+        - name: type
+          in: path
+          description: Type of entity to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/Hero'
+                    - $ref: '#/components/schemas/Weapon'
+        '204':
+          description: No any entity found
+          content: { }
+  '/entity/{type}/{name}':
+    get:
+      tags:
+        - entity
+      summary: Get entity by name
+      description: Returns a single entity
+      operationId: getEntityByName
+      parameters:
+        - name: type
+          in: path
+          description: Type of entity to return
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          description: Entity name to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                    - $ref: '#/components/schemas/Hero'
+                    - $ref: '#/components/schemas/Weapon'
+            
+        '400':
+          description: Invalid name supplied
+          content: { }
+        '404':
+          description: Entity not found
+          content: { }
+    delete:
+      tags:
+        - entity
+      summary: Deletes an entity profile
+      operationId: deleteEntity
+      parameters:
+        - name: type
+          in: path
+          description: Type of entity to delete
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          description: Entity name to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+          content: { }
+        '404':
+          description: Entity not found
+          content: { }
+  
+  '/entity/{type}/{user_id}':
+    get:
+      tags:
+        - entity
+      summary: Get draft entity by name
+      description: Returns a single entity
+      operationId: getDraftEntityByName
+      parameters:
+        - name: type
+          in: path
+          description: Type of entity to return
+          required: true
+          schema:
+            type: string
+        - name: user_id
+          in: path
+          description: Entity name to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                    - $ref: '#/components/schemas/Hero'
+                    - $ref: '#/components/schemas/Weapon'
+            
+        '400':
+          description: Invalid name supplied
+          content: { }
+        '404':
+          description: Entity not found
+          content: { }
+          
+  '/entity/{type}/{name}/{user_id}':
+    put:
+      tags:
+        - entity
+      summary: Update an existing draft entity profile
+      operationId: updateDraftEntity
+      parameters:
+        - name: type
+          in: path
+          description: Type of entity to return
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          description: Entity name to return
+          required: true
+          schema:
+            type: string
+        - name: user_id
+          in: path
+          description: Entity name to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      requestBody:
+        description: Update profile
+        content:
+          multipart/form-data:
+            schema:
+              oneOf: 
+                - $ref: '#/components/schemas/Hero'
+                - $ref: '#/components/schemas/Weapon'
+        required: true
+      responses:
+        '200':
+          description: Updated
+          content: { }
+        '404':
+          description: Entity not found
+          content: { }
+        '405':
+          description: Validation exception
+          content: { }
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    Weapon:
+      required:
+        - name
+      type: object
+      properties:
+        name: 
+          description: Name of weapon
+          type: string
+          example: Sword
+          minLength: 1
+          maxLength: 100
+        mainImage: 
+          description: Link to main image in filesystem
+          type: string
+          format: binary
+          minLength: 1
+          maxLength: 200
+        entireIcon: 
+          description: Link to entire icon in filesystem
+          type: string
+          format: binary
+          example: "file://source/swordEntireIcon"
+          minLength: 1
+          maxLength: 200
+        brokenIcon: 
+          description: Link to broken icon in filesystem
+          type: string
+          format: binary
+          example: "file://source/swordBrokenIcon"
+          minLength: 1
+          maxLength: 200
+  
+      xml:
+        name: Weapon
+    Hero:
+      required:
+        - name
+      type: object
+      properties:
+        name: 
+          description: Name of hero
+          type: string
+          example: Packman
+          minLength: 1
+          maxLength: 100
+        mainImage: 
+          description: Link to main image in filesystem
+          type: string
+          format: binary
+          example: "file://source/packmanMain"
+          minLength: 1
+          maxLength: 200
+        icon: 
+          description: Link to icon in filesystem
+          type: string
+          format: binary
+          example: "file://source/packmanIcon"
+          minLength: 1
+          maxLength: 200
+      xml:
+        name: Hero
