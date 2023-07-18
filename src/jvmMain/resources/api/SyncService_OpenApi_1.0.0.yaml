@@ -7,60 +7,28 @@ servers:
   - url: 'https://scorewarrior.sync.service.com/v1'
   - url: 'http://scorewarrior.sync.service.com/v1'
 tags:
-  - name: Entity
+  - name: Element
     description: Information about heroes and weapons
 paths:
-  '/entity/{type}':
-    put:
+  '/element/{type}':
+    post:
       tags:
-        - entity
-      summary: Update an existing entity profile
-      operationId: updateEntity
+        - element
+      summary: Add a new element profile
+      operationId: addElement
       parameters:
         - name: type
           in: path
-          description: Name of entity to return
+          description: Type of element to return
           required: true
           schema:
             type: string
       requestBody:
-        description: Update profile
+        description: Add a new element profile
         content:
           multipart/form-data:
             schema:
-              oneOf: 
-                - $ref: '#/components/schemas/Hero'
-                - $ref: '#/components/schemas/Weapon'
-        required: true
-      responses:
-        '200':
-          description: Updated
-          content: { }
-        '404':
-          description: Entity not found
-          content: { }
-        '405':
-          description: Validation exception
-          content: { }
-      x-codegen-request-body-name: body
-    post:
-      tags:
-        - entity
-      summary: Add a new entity profile
-      operationId: addEntity
-      parameters:
-        - name: type
-          in: path
-          description: Type of entity to return
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Add a new entity profile
-        content:
-          application/json:
-            schema:
-              anyOf:
+              oneOf:
                 - $ref: '#/components/schemas/Hero'
                 - $ref: '#/components/schemas/Weapon'
         required: true
@@ -74,20 +42,20 @@ paths:
                 properties:
                   link:
                     type: string
-                    description: Link on the created entity
+                    description: Link on the created element
         '405':
           description: Invalid input
           content: { }
       x-codegen-request-body-name: body
     get:
       tags:
-        - entity
+        - element
       summary: Find all existing entities
-      operationId: getAllEntitties
+      operationId: getAllElements
       parameters:
         - name: type
           in: path
-          description: Type of entity to return
+          description: Type of element to return
           required: true
           schema:
             type: string
@@ -103,25 +71,57 @@ paths:
                     - $ref: '#/components/schemas/Hero'
                     - $ref: '#/components/schemas/Weapon'
         '204':
-          description: No any entity found
+          description: No any element found
           content: { }
-  '/entity/{type}/{name}':
-    get:
+    put:
       tags:
-        - entity
-      summary: Get entity by name
-      description: Returns a single entity
-      operationId: getEntityByName
+        - element
+      summary: Update an existing element profile
+      operationId: updateElement
       parameters:
         - name: type
           in: path
-          description: Type of entity to return
+          description: Type of element to return
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update profile
+        content:
+          multipart/form-data:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Hero'
+                - $ref: '#/components/schemas/Weapon'
+        required: true
+      responses:
+        '200':
+          description: Updated
+          content: { }
+        '404':
+          description: Element not found
+          content: { }
+        '405':
+          description: Validation exception
+          content: { }
+      x-codegen-request-body-name: body
+  '/element/{type}/{name}':
+    get:
+      tags:
+        - element
+      summary: Get element by name
+      description: Returns a single element
+      operationId: getElementByName
+      parameters:
+        - name: type
+          in: path
+          description: Type of element to return
           required: true
           schema:
             type: string
         - name: name
           in: path
-          description: Entity name to return
+          description: Element name to return
           required: true
           schema:
             type: string
@@ -132,58 +132,39 @@ paths:
             application/json:
               schema:
                 oneOf:
-                    - $ref: '#/components/schemas/Hero'
-                    - $ref: '#/components/schemas/Weapon'
-            
+                  - $ref: '#/components/schemas/Hero'
+                  - $ref: '#/components/schemas/Weapon'
+
         '400':
           description: Invalid name supplied
           content: { }
         '404':
-          description: Entity not found
+          description: Element not found
           content: { }
-    delete:
+
+  '/element/{type}/{name}/{user_id}':
+    get:
       tags:
-        - entity
-      summary: Deletes an entity profile
-      operationId: deleteEntity
+        - element
+      summary: Get draft element by name
+      description: Returns a single element
+      operationId: getDraftElementByName
       parameters:
         - name: type
           in: path
-          description: Type of entity to delete
+          description: Type of element to return
           required: true
           schema:
             type: string
         - name: name
           in: path
-          description: Entity name to delete
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Deleted
-          content: { }
-        '404':
-          description: Entity not found
-          content: { }
-  
-  '/entity/{type}/{user_id}':
-    get:
-      tags:
-        - entity
-      summary: Get draft entity by name
-      description: Returns a single entity
-      operationId: getDraftEntityByName
-      parameters:
-        - name: type
-          in: path
-          description: Type of entity to return
+          description: Element name to return
           required: true
           schema:
             type: string
         - name: user_id
           in: path
-          description: Entity name to return
+          description: Element name to return
           required: true
           schema:
             type: integer
@@ -196,38 +177,65 @@ paths:
             application/json:
               schema:
                 oneOf:
-                    - $ref: '#/components/schemas/Hero'
-                    - $ref: '#/components/schemas/Weapon'
-            
+                  - $ref: '#/components/schemas/Hero'
+                  - $ref: '#/components/schemas/Weapon'
+
         '400':
           description: Invalid name supplied
           content: { }
         '404':
-          description: Entity not found
+          description: Element not found
           content: { }
-          
-  '/entity/{type}/{name}/{user_id}':
-    put:
+    delete:
       tags:
-        - entity
-      summary: Update an existing draft entity profile
-      operationId: updateDraftEntity
+        - element
+      summary: Deletes an element profile
+      operationId: deleteDraftElement
       parameters:
         - name: type
           in: path
-          description: Type of entity to return
+          description: Type of element to delete
           required: true
           schema:
             type: string
         - name: name
           in: path
-          description: Entity name to return
+          description: Element name to delete
           required: true
           schema:
             type: string
         - name: user_id
           in: path
-          description: Entity name to return
+          description: Element name to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '204':
+          description: Deleted
+          content: { }
+        '404':
+          description: Element not found
+          content: { }
+
+  '/element/{type}/{user_id}':
+    put:
+      tags:
+        - element
+      summary: Update an existing draft element profile
+      operationId: updateDraftElement
+      parameters:
+        - name: type
+          in: path
+          description: Type of element to return
+          required: true
+          schema:
+            type: string
+        - name: user_id
+          in: path
+          description: Element name to return
           required: true
           schema:
             type: integer
@@ -238,7 +246,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              oneOf: 
+              oneOf:
                 - $ref: '#/components/schemas/Hero'
                 - $ref: '#/components/schemas/Weapon'
         required: true
@@ -247,7 +255,7 @@ paths:
           description: Updated
           content: { }
         '404':
-          description: Entity not found
+          description: Element not found
           content: { }
         '405':
           description: Validation exception
@@ -260,33 +268,31 @@ components:
         - name
       type: object
       properties:
-        name: 
+        name:
           description: Name of weapon
           type: string
           example: Sword
           minLength: 1
           maxLength: 100
-        mainImage: 
+        mainImage:
           description: Link to main image in filesystem
           type: string
           format: binary
           minLength: 1
           maxLength: 200
-        entireIcon: 
+        entireIcon:
           description: Link to entire icon in filesystem
           type: string
           format: binary
-          example: "file://source/swordEntireIcon"
           minLength: 1
           maxLength: 200
-        brokenIcon: 
+        brokenIcon:
           description: Link to broken icon in filesystem
           type: string
           format: binary
-          example: "file://source/swordBrokenIcon"
           minLength: 1
           maxLength: 200
-  
+
       xml:
         name: Weapon
     Hero:
@@ -294,24 +300,22 @@ components:
         - name
       type: object
       properties:
-        name: 
+        name:
           description: Name of hero
           type: string
           example: Packman
           minLength: 1
           maxLength: 100
-        mainImage: 
+        mainImage:
           description: Link to main image in filesystem
           type: string
           format: binary
-          example: "file://source/packmanMain"
           minLength: 1
           maxLength: 200
-        icon: 
+        icon:
           description: Link to icon in filesystem
           type: string
           format: binary
-          example: "file://source/packmanIcon"
           minLength: 1
           maxLength: 200
       xml:

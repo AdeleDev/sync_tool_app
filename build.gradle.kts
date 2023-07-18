@@ -153,8 +153,8 @@ openApiGenerate {
             "supportingFiles" to "ApiUtil.java"
         )
     )
-    apiPackage.set("scorewarrior.multiplatform.syncservice.api")
-    modelPackage.set("scorewarrior.multiplatform.syncservice.model")
+    apiPackage.set("scorewarrior.syncservice.api")
+    modelPackage.set("scorewarrior.syncservice.model")
     modelNameSuffix.set("Dto")
     generateApiTests.set(false)
     generateModelTests.set(false)

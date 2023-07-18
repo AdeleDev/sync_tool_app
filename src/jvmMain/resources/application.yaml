@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: sync-management
+#  datasource:
+#    url: jdbc:h2:file:./data/testdb
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#      naming:
+#        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+#        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+#    database-platform: org.hibernate.dialect.H2Dialect
+logging:
+  level:
+    root: INFO
+client:
+  address: "http://localhost:3000"
+imageFolder:
+  path: "/data"

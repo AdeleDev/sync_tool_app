@@ -1,0 +1,1 @@
+POST https://scorewarrior.sync.service.com/v1/element/{{type}}
