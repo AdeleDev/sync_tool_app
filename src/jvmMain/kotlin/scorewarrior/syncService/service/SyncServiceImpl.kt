@@ -11,8 +11,7 @@ import scorewarrior.syncService.entity.WeaponEntity
 import scorewarrior.syncService.exception.ElementAlreadyExistException
 import scorewarrior.syncService.exception.ElementNotExistException
 import scorewarrior.syncService.exception.InvalidNameException
-import scorewarrior.syncService.mappers.HeroFieldsMapper.Companion.HERO_FIELDS_MAPPER
-import scorewarrior.syncService.mappers.WeaponFieldsMapper.Companion.WEAPON_FIELDS_MAPPER
+import scorewarrior.syncService.mappers.FieldsMapper
 import scorewarrior.syncService.repository.HeroRepository
 import scorewarrior.syncService.repository.WeaponRepository
 import scorewarrior.syncService.service.api.SyncService
@@ -32,6 +31,10 @@ class SyncServiceImpl : SyncService {
 
     @Autowired
     lateinit var weaponRepository: WeaponRepository
+
+    @Autowired
+    private lateinit var fieldsMapper: FieldsMapper
+
 
     @Throws(ElementAlreadyExistException::class)
     override fun addElement(type: String, name: String): AddElement201ResponseDto? {
@@ -72,12 +75,11 @@ class SyncServiceImpl : SyncService {
                 throw ElementNotExistException()
             }
             val heroEntity: HeroEntity = heroEntities.get()
-            val draftHeroEntity: HeroEntity = HERO_FIELDS_MAPPER.dtoToEntity(dto)
+            val draftHeroEntity: HeroEntity = fieldsMapper.heroDtoToEntity(dto)
 
             heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
-            draftHeroEntity.userId = user_id
             heroEntity.drafts.add(draftHeroEntity)
-
+            draftHeroEntity.userId = user_id
             heroEntity.let { heroRepository.save(it) }
             LOGGER.info("Hero with name  = " + dto.name + " was updated with draft version from user = $user_id")
         } else {
@@ -88,7 +90,7 @@ class SyncServiceImpl : SyncService {
                 throw ElementNotExistException()
             }
             val weaponEntity: WeaponEntity = weaponEntities.get()
-            val draftWeaponEntity: WeaponEntity = WEAPON_FIELDS_MAPPER.dtoToEntity(dto)
+            val draftWeaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto)
 
             weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
             draftWeaponEntity.userId = user_id
@@ -108,7 +110,7 @@ class SyncServiceImpl : SyncService {
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            val heroEntity: HeroEntity = HERO_FIELDS_MAPPER.dtoToEntity(dto)
+            val heroEntity: HeroEntity = fieldsMapper.heroDtoToEntity(dto)
             heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
             heroEntity.let { heroRepository.save(it) }
             LOGGER.info("Hero with name  = " + dto.name + " was updated")
@@ -119,7 +121,7 @@ class SyncServiceImpl : SyncService {
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            val weaponEntity: WeaponEntity = WEAPON_FIELDS_MAPPER.dtoToEntity(dto)
+            val weaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto)
             weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
             weaponEntity.let { weaponRepository.save(it) }
             LOGGER.info("Weapon with name  = " + dto.name + " was updated")
@@ -159,13 +161,15 @@ class SyncServiceImpl : SyncService {
             if (heroEntities.isEmpty()) {
                 throw ElementNotExistException()
             }
-            heroEntities.stream().map<GetAllElements200ResponseInnerDto>(HERO_FIELDS_MAPPER::entityToDto).toList()
+            heroEntities.stream()
+                .map { el -> el?.let { fieldsMapper.heroEntityToDto(it) } }.toList()
         } else {
             val weaponEntities: MutableList<WeaponEntity?> = weaponRepository.findAll()
             if (weaponEntities.isEmpty()) {
                 throw ElementNotExistException()
             }
-            weaponEntities.stream().map<GetAllElements200ResponseInnerDto>(WEAPON_FIELDS_MAPPER::entityToDto).toList()
+            weaponEntities.stream()
+                .map { el -> el?.let { fieldsMapper.weaponEntityToDto(it) } }.toList()
         }
 
     }
@@ -186,13 +190,13 @@ class SyncServiceImpl : SyncService {
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            HERO_FIELDS_MAPPER.entityToDto(heroRepository.findDraftByNameAndUser(elementName, user_id))
+            fieldsMapper.heroEntityToDto(heroRepository.findDraftByNameAndUser(elementName, user_id))
         } else {
             val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(elementName)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            WEAPON_FIELDS_MAPPER.entityToDto(weaponRepository.findDraftByNameAndUser(elementName, user_id))
+            fieldsMapper.weaponEntityToDto(weaponRepository.findDraftByNameAndUser(elementName, user_id))
         }
     }
 
@@ -208,13 +212,13 @@ class SyncServiceImpl : SyncService {
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            HERO_FIELDS_MAPPER.entityToDto(heroEntities.get())
+            fieldsMapper.heroEntityToDto(heroEntities.get())
         } else {
             val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(elementName)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            WEAPON_FIELDS_MAPPER.entityToDto(weaponEntities.get())
+            fieldsMapper.weaponEntityToDto(weaponEntities.get())
         }
 
     }
