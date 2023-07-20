@@ -14,19 +14,19 @@ interface SyncService {
     fun addElement(type: String, name: String): AddElement201ResponseDto?
 
     @Throws(ElementAlreadyExistException::class)
-    fun updateDraftElement(dto: Any, type: String, user_id: Long)
+    fun updateDraftElement(dto: Any, type: String, userId: Long)
 
     @Throws(ElementAlreadyExistException::class)
     fun updateElement(dto: Any, type: String)
 
     @Throws(ElementNotExistException::class)
-    fun deleteDraftElement(elementName: String, type: String, user_id: Long)
+    fun deleteDraftElement(elementName: String, type: String, userId: Long)
 
     @Throws(ElementNotExistException::class)
     fun getAllEntities(type: String): List<GetAllElements200ResponseInnerDto>
 
     @Throws(ElementNotExistException::class)
-    fun getDraftElementByName(elementName: String, type: String, user_id: Long): GetAllElements200ResponseInnerDto?
+    fun getDraftElementByName(elementName: String, type: String, userId: Long): GetAllElements200ResponseInnerDto?
 
     @Throws(ElementNotExistException::class)
     fun getElementByName(elementName: String, type: String): GetAllElements200ResponseInnerDto?

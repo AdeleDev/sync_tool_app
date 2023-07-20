@@ -7,20 +7,10 @@ import javax.validation.constraints.Size
 
 @Document("heroes")
 class HeroEntity(
-    @NotNull @Size(min = 1, max = 100) name: String,
+    name: String,
     @Size(min = 1, max = 200) var mainImage: String?,
     @Size(min = 1, max = 200) var icon: String?,
-) : BaseEntity() {
-
-
-    @Id
-    var name: String? = name
-
-    @Size(min = 1)
-    var userId: Long? = null
-
-    lateinit var drafts: ArrayList<HeroEntity>
-
+) : ItemEntity(name) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -28,6 +28,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.openapi.generator") version "6.5.0"
 //    kotlin("kapt") version "1.8.20"
+
+//    kotlin("js") version "1.6.10"
+
 }
 
 
@@ -37,6 +40,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
+//    maven { url = uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") }
 }
 
 kotlin {
@@ -57,6 +61,21 @@ kotlin {
             }
         }
     }
+//    useCommonJs()
+
+
+//    dependencies {
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react:17.0.2-pre.290-kotlin-1.6.10")
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:17.0.2-pre.290-kotlin-1.6.10")
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-redux:4.1.2-pre.290-kotlin-1.6.10")
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react-redux:7.2.6-pre.290-kotlin-1.6.10")
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.3-pre.290-kotlin-1.6.10")
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.2.1-pre.290-kotlin-1.6.10")
+//        implementation("org.jetbrains.kotlin-wrappers:kotlin-ring-ui:4.1.5-pre.290-kotlin-1.6.10")
+//
+//        // for kotlin-ring-ui
+//        implementation(npm("core-js", "^3.16.0"))
+//    }
     sourceSets {
         val commonMain by getting
         val commonTest by getting {
@@ -66,6 +85,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
                 implementation("net.logstash.logback:logstash-logback-encoder:${logstashEncoderVersion}") {
                     isTransitive = false
                 }
@@ -170,7 +190,7 @@ tasks.named("compileKotlinJvm", org.jetbrains.kotlin.gradle.tasks.KotlinCompilat
 }
 
 application {
-    mainClass.set("scorewarrior.syncService.SyncApplication")
+    mainClass.set("scorewarrior.syncService.SyncApplicationKt")
 }
 
 //bootRun {

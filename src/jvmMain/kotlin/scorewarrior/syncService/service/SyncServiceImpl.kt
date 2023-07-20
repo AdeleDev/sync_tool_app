@@ -1,5 +1,6 @@
 package scorewarrior.syncService.service
 
+import org.apache.tomcat.util.http.fileupload.FileUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import scorewarrior.syncService.api.ElementTypes
 import scorewarrior.syncService.entity.HeroEntity
+import scorewarrior.syncService.entity.ItemEntity
 import scorewarrior.syncService.entity.WeaponEntity
 import scorewarrior.syncService.exception.ElementAlreadyExistException
 import scorewarrior.syncService.exception.ElementNotExistException
@@ -19,6 +21,7 @@ import scorewarrior.syncservice.model.AddElement201ResponseDto
 import scorewarrior.syncservice.model.GetAllElements200ResponseInnerDto
 import scorewarrior.syncservice.model.HeroDto
 import scorewarrior.syncservice.model.WeaponDto
+import java.io.File
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -66,10 +69,10 @@ class SyncServiceImpl : SyncService {
     }
 
     @Throws(ElementNotExistException::class, ElementAlreadyExistException::class)
-    override fun updateDraftElement(dto: Any, type: String, user_id: Long) {
+    override fun updateDraftElement(dto: Any, type: String, userId: Long) {
         if (type == ElementTypes.HERO.value) {
             dto as HeroDto
-            LOGGER.info("Got draft update request from user = $user_id for element type of $type with name = " + dto.name)
+            LOGGER.info("Got draft update request from user = $userId for element type of $type with name = " + dto.name)
             val heroEntities: Optional<HeroEntity?> = heroRepository.findById(dto.name)
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
@@ -77,14 +80,13 @@ class SyncServiceImpl : SyncService {
             val heroEntity: HeroEntity = heroEntities.get()
             val draftHeroEntity: HeroEntity = fieldsMapper.heroDtoToEntity(dto)
 
-            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
-            heroEntity.drafts.add(draftHeroEntity)
-            draftHeroEntity.userId = user_id
+            updateDraftEntity(heroEntity, draftHeroEntity, userId)
+
             heroEntity.let { heroRepository.save(it) }
-            LOGGER.info("Hero with name  = " + dto.name + " was updated with draft version from user = $user_id")
+            LOGGER.info("Hero with name  = " + dto.name + " was updated with draft version from user = $userId")
         } else {
             dto as WeaponDto
-            LOGGER.info("Got draft update request from user = $user_id for element type of $type with name = " + dto.name)
+            LOGGER.info("Got draft update request from user = $userId for element type of $type with name = " + dto.name)
             val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(dto.name)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
@@ -92,13 +94,52 @@ class SyncServiceImpl : SyncService {
             val weaponEntity: WeaponEntity = weaponEntities.get()
             val draftWeaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto)
 
-            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
-            draftWeaponEntity.userId = user_id
-            weaponEntity.drafts.add(draftWeaponEntity)
+            updateDraftEntity(weaponEntity, draftWeaponEntity, userId)
 
             weaponEntity.let { weaponRepository.save(it) }
-            LOGGER.info("Weapon with name  = " + dto.name + " was updated with draft version from user = $user_id")
+            LOGGER.info("Weapon with name  = " + dto.name + " was updated with draft version from user = $userId")
         }
+    }
+
+    private fun updateDraftEntity(baseEntity: ItemEntity, draftEntity: ItemEntity, userId: Long) {
+        removeDraft(baseEntity, userId)
+
+        baseEntity.lastModifiedTimestamp = OffsetDateTime.now()
+        baseEntity.drafts.add(draftEntity)
+        draftEntity.userId = userId
+    }
+
+    private fun removeDraft(baseEntity: ItemEntity, userId: Long) {
+        var oldDraftEntity: ItemEntity? = null
+        for (draft in baseEntity.drafts) {
+            if (draft.userId == userId) {
+                oldDraftEntity = draft
+            }
+        }
+        oldDraftEntity?.let {
+            when (it) {
+                is WeaponEntity -> removeImages(it)
+                is HeroEntity -> removeImages(it)
+            }
+            baseEntity.drafts.remove(it)
+        }
+    }
+
+    private fun removeImages(oldHero: HeroEntity) {
+        oldHero.mainImage?.let { removeFile(it) }
+        oldHero.icon?.let { removeFile(it) }
+        oldHero.drafts.forEach { d -> removeImages(d as HeroEntity) }
+    }
+
+    private fun removeImages(oldWeapon: WeaponEntity) {
+        oldWeapon.mainImage?.let { removeFile(it) }
+        oldWeapon.entireIcon?.let { removeFile(it) }
+        oldWeapon.brokenIcon?.let { removeFile(it) }
+        oldWeapon.drafts.forEach { d -> removeImages(d as WeaponEntity) }
+    }
+
+    private fun removeFile(filePath: String) {
+        FileUtils.forceDelete(File(filePath))
     }
 
     @Throws(ElementNotExistException::class, ElementAlreadyExistException::class)
@@ -109,6 +150,8 @@ class SyncServiceImpl : SyncService {
             val heroEntities: Optional<HeroEntity?> = heroRepository.findById(dto.name)
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
+            } else {
+                removeImages(heroEntities.get())
             }
             val heroEntity: HeroEntity = fieldsMapper.heroDtoToEntity(dto)
             heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
@@ -120,6 +163,8 @@ class SyncServiceImpl : SyncService {
             val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(dto.name)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
+            } else {
+                removeImages(weaponEntities.get())
             }
             val weaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto)
             weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
@@ -129,7 +174,7 @@ class SyncServiceImpl : SyncService {
     }
 
     @Throws(ElementNotExistException::class)
-    override fun deleteDraftElement(elementName: String, type: String, user_id: Long) {
+    override fun deleteDraftElement(elementName: String, type: String, userId: Long) {
         LOGGER.info("Got draft delete request for element type of $type with name = $elementName")
         if (type == ElementTypes.HERO.value) {
             val heroEntities: Optional<HeroEntity?> = heroRepository.findById(elementName)
@@ -137,20 +182,20 @@ class SyncServiceImpl : SyncService {
                 throw ElementNotExistException()
             }
             val heroEntity: HeroEntity = heroEntities.get()
+            removeDraft(heroEntity, userId)
             heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
-            heroEntity.userId = null
             heroEntity.let { heroRepository.save(it) }
-            LOGGER.info("Draft hero info from user = $user_id for element with name  = $elementName was deleted")
+            LOGGER.info("Draft hero info from user = $userId for element with name  = $elementName was deleted")
         } else {
             val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(elementName)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
             val weaponEntity: WeaponEntity = weaponEntities.get()
+            removeDraft(weaponEntity, userId)
             weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
-            weaponEntity.userId = null
             weaponEntity.let { weaponRepository.save(it) }
-            LOGGER.info("Draft weapon info from user = $user_id for element with name  = $elementName was deleted")
+            LOGGER.info("Draft weapon info from user = $userId for element with name  = $elementName was deleted")
         }
     }
 
@@ -178,9 +223,9 @@ class SyncServiceImpl : SyncService {
     override fun getDraftElementByName(
         elementName: String,
         type: String,
-        user_id: Long
+        userId: Long
     ): GetAllElements200ResponseInnerDto? {
-        LOGGER.info("Got get request for draft element of type = $type with id = $elementName from user = $user_id")
+        LOGGER.info("Got get request for draft element of type = $type with id = $elementName from user = $userId")
         if (elementName.isEmpty() || elementName.isBlank()) {
             throw InvalidNameException()
         }
@@ -190,13 +235,13 @@ class SyncServiceImpl : SyncService {
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            fieldsMapper.heroEntityToDto(heroRepository.findDraftByNameAndUser(elementName, user_id))
+            fieldsMapper.heroEntityToDto(heroRepository.findDraftByNameAndUser(elementName, userId))
         } else {
             val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(elementName)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            fieldsMapper.weaponEntityToDto(weaponRepository.findDraftByNameAndUser(elementName, user_id))
+            fieldsMapper.weaponEntityToDto(weaponRepository.findDraftByNameAndUser(elementName, userId))
         }
     }
 

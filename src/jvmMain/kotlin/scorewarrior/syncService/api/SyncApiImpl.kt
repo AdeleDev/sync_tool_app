@@ -39,8 +39,7 @@ class SyncApiImpl : ElementApi {
         brokenIcon: @Valid Resource?
     ): ResponseEntity<AddElement201ResponseDto> {
         return try {
-            service?.addElement(type, name)
-            ResponseEntity.status(HttpStatus.CREATED).build()
+            ResponseEntity.status(HttpStatus.CREATED).body(service?.addElement(type, name))
         } catch (e: ElementAlreadyExistException) {
             e.printStackTrace()
             ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build()
@@ -123,7 +122,6 @@ class SyncApiImpl : ElementApi {
                 val weaponDto = WeaponDto(name, mainImage, entireIcon, brokenIcon)
                 service?.updateDraftElement(weaponDto, type, userId)
             }
-
             ResponseEntity.ok().build()
         } catch (e: ElementNotExistException) {
             e.printStackTrace()
