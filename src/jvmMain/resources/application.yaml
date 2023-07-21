@@ -26,7 +26,7 @@ logging:
   level:
     root: INFO
 client:
-  address: "http://localhost:8080"
+  address: "*"
 imageFolder:
   path: "/data"
 server:
