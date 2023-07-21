@@ -2,7 +2,6 @@ package scorewarrior.syncService.mappers
 
 import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.springframework.core.io.InputStreamResource
-import org.springframework.core.io.InputStreamSource
 import org.springframework.stereotype.Component
 import scorewarrior.syncService.entity.HeroEntity
 import scorewarrior.syncService.entity.WeaponEntity
@@ -12,7 +11,6 @@ import scorewarrior.syncservice.model.WeaponDto
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.InputStream
 
 @Component
 class FieldsMapper() {
@@ -26,16 +24,17 @@ class FieldsMapper() {
             weaponDto.name,
             storeImageFile(weaponDto),
             storeEntireIconFile(weaponDto),
-            storeBrokenIconFile(weaponDto))
+            storeBrokenIconFile(weaponDto)
+        )
     }
 
     fun heroEntityToDto(heroEntity: HeroEntity): GetAllElements200ResponseInnerDto {
-         return heroEntity.name?.let { it ->
-             GetAllElements200ResponseInnerDto(
-                 it,
-                 heroEntity.mainImage?.let { FileInputStream(it) }?.let { InputStreamResource(it) },
-                 heroEntity.icon?.let { FileInputStream(it) }?.let { InputStreamResource(it) })
-         }!!
+        return heroEntity.name?.let { it ->
+            GetAllElements200ResponseInnerDto(
+                it,
+                heroEntity.mainImage?.let { FileInputStream(it) }?.let { InputStreamResource(it) },
+                heroEntity.icon?.let { FileInputStream(it) }?.let { InputStreamResource(it) })
+        }!!
 
     }
 

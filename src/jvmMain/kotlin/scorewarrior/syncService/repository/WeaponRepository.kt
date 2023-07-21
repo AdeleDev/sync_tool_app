@@ -7,7 +7,4 @@ import scorewarrior.syncService.entity.WeaponEntity
 
 @Repository
 interface WeaponRepository : MongoRepository<WeaponEntity?, String?> {
-
-    @Query(value = "{name:'?0', drafts.userId: '?1'}")
-    fun findDraftByNameAndUser(name: String, userId: Long): WeaponEntity
 }

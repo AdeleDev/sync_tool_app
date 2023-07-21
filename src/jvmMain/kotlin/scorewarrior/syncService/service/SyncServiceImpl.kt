@@ -58,7 +58,7 @@ class SyncServiceImpl : SyncService {
             if (!weaponEntities.isEmpty) {
                 throw ElementAlreadyExistException(name)
             }
-            val weaponEntity = WeaponEntity(name, null, null, null)
+            val weaponEntity = WeaponEntity(name, null,  null, null)
 //            weaponEntity.createdTimestamp = OffsetDateTime.now()
 //            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
             weaponRepository.save(weaponEntity)
@@ -104,25 +104,25 @@ class SyncServiceImpl : SyncService {
         removeDraft(baseEntity, userId)
 
 //        //baseEntity.lastModifiedTimestamp = OffsetDateTime.now()
-        baseEntity.drafts.add(draftEntity)
+        //todo  baseEntity.drafts?.add(draftEntity)
         draftEntity.userId = userId
     }
 
     private fun removeDraft(baseEntity: ItemEntity, userId: Long) {
         var oldDraftEntity: ItemEntity? = null
-        for (draft in baseEntity.drafts) {
-            if (draft.userId == userId) {
-                oldDraftEntity = draft
-            }
+// todo       for (draft in baseEntity.drafts) {
+//            if (draft.userId == userId) {
+//                oldDraftEntity = draft
+//            }
         }
-        oldDraftEntity?.let {
-            when (it) {
-                is WeaponEntity -> removeImages(it)
-                is HeroEntity -> removeImages(it)
-            }
-            baseEntity.drafts.remove(it)
-        }
-    }
+//        oldDraftEntity?.let {
+//            when (it) {
+//                is WeaponEntity -> removeImages(it)
+//                is HeroEntity -> removeImages(it)
+//            }
+//            //todo baseEntity.drafts?.remove(it)
+//        }
+   // }
 
     private fun removeImages(oldHero: HeroEntity) {
         oldHero.mainImage?.let { removeFile(it) }
@@ -230,17 +230,27 @@ class SyncServiceImpl : SyncService {
         }
 
         return if (type == ElementTypes.HERO.value) {
-            val heroEntities: Optional<HeroEntity?> = heroRepository.findById(elementName)
+            val heroEntities = heroRepository.findById(elementName)
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            fieldsMapper.heroEntityToDto(heroRepository.findDraftByNameAndUser(elementName, userId))
+            val draft = heroEntities.get().drafts
+            if (draft.isEmpty()) {
+                throw ElementNotExistException()
+            } else {
+                fieldsMapper.heroEntityToDto(draft.filter { t-> t.userId==userId}[0])
+            }
         } else {
-            val weaponEntities: Optional<WeaponEntity?> = weaponRepository.findById(elementName)
+            val weaponEntities = weaponRepository.findById(elementName)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            fieldsMapper.weaponEntityToDto(weaponRepository.findDraftByNameAndUser(elementName, userId))
+            val draft = weaponEntities.get().drafts
+            if (draft.isEmpty()) {
+                throw ElementNotExistException()
+            } else {
+                fieldsMapper.weaponEntityToDto(draft.filter { t-> t.userId==userId}[0])
+            }
         }
     }
 
