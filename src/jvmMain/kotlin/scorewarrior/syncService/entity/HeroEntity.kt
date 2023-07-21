@@ -1,7 +1,5 @@
 package scorewarrior.syncService.entity
 
-import org.jetbrains.annotations.NotNull
-import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import javax.validation.constraints.Size
 
@@ -12,7 +10,7 @@ class HeroEntity(
     @Size(min = 1, max = 200) var icon: String?,
 ) : ItemEntity(name) {
 
-    var drafts: ArrayList<HeroEntity>? =null
+//    var drafts: ArrayList<HeroEntity>? =null
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

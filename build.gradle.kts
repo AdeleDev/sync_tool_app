@@ -28,9 +28,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.openapi.generator") version "6.5.0"
 //    kotlin("kapt") version "1.8.20"
-
-//    kotlin("js") version "1.6.10"
-
 }
 
 
@@ -40,7 +37,6 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-//    maven { url = uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") }
 }
 
 kotlin {
@@ -52,40 +48,40 @@ kotlin {
         }
     }
     js(IR) {
+        moduleName = project.name
         binaries.executable()
         browser {
             commonWebpackConfig {
                 cssSupport {
                     enabled.set(true)
                 }
+//                devServer = KotlinWebpackConfig.DevServer(
+//                    static = mutableListOf("$buildDir/distributions"),
+//                    // proxy api calls to springboot running on 3000 configured in application.yml
+//                    proxy = hashMapOf("/" to "http://localhost:3000")
+//                )
+                outputFileName = "test-task-multiplatform.js"
+                //outputPath = File(buildDir, "processedResources/spring/main/static")
             }
         }
     }
-//    useCommonJs()
-
-
-//    dependencies {
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react:17.0.2-pre.290-kotlin-1.6.10")
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:17.0.2-pre.290-kotlin-1.6.10")
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-redux:4.1.2-pre.290-kotlin-1.6.10")
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react-redux:7.2.6-pre.290-kotlin-1.6.10")
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.3-pre.290-kotlin-1.6.10")
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.2.1-pre.290-kotlin-1.6.10")
-//        implementation("org.jetbrains.kotlin-wrappers:kotlin-ring-ui:4.1.5-pre.290-kotlin-1.6.10")
-//
-//        // for kotlin-ring-ui
-//        implementation(npm("core-js", "^3.16.0"))
-//    }
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+//                implementation("com.benasher44:uuid:0.3.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-html:0.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
         val jvmMain by getting {
+            dependsOn(commonMain)
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
                 implementation("net.logstash.logback:logstash-logback-encoder:${logstashEncoderVersion}") {
                     isTransitive = false
                 }
@@ -96,16 +92,12 @@ kotlin {
                 implementation("com.squareup.moshi:moshi-adapters:1.11.0")
                 implementation("com.squareup.okhttp3:okhttp:4.9.0")
                 implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
+                implementation("org.openapitools:jackson-databind-nullable:$jacksonNullableVersion")
 
                 implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
 //                implementation("jakarta.validation:jakarta.validation-api")
                 implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
                 implementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
-//                implementation("org.mapstruct:mapstruct:${mapStructVersion}")
-//                kapt("org.mapstruct:mapstruct-processor:${mapStructVersion}")
-//                configurations["kapt"].dependencies.add(
-//                    project.dependencies.create("org.mapstruct:mapstruct-processor:${mapStructVersion}")
-//                )
                 implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
 
             }
@@ -116,28 +108,32 @@ kotlin {
             }
         }
         val jsMain by getting {
+            dependsOn(commonMain)
             dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.7.2")
+
                 fun kotlinw(target: String): String =
                     "org.jetbrains.kotlin-wrappers:kotlin-$target"
 
                 dependencies {
-//                    implementation("io.ktor:ktor-client-js:$ktor_version")
-//                    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
-//                    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
                     implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom:$kotlinWrappersVersion"))
                     implementation(kotlinw("react"))
                     implementation(kotlinw("react-dom"))
                     implementation(kotlinw("react-router-dom"))
                     implementation(kotlinw("emotion"))
                     implementation(kotlinw("mui"))
+                    implementation(kotlinw("mui-icons"))
                 }
+
+                implementation(npm("date-fns", "2.30.0"))
+                implementation(npm("@date-io/date-fns", "2.16.0"))
             }
         }
         val jsTest by getting
     }
-    sourceSets["jvmMain"].apply {
-        kotlin.srcDir("$buildDir/openapi-generated-src")
-    }
+//    sourceSets["jvmMain"].apply {
+//        kotlin.srcDir("$buildDir/openapi-generated-src")
+//    }
 }
 //
 //dependencies {
@@ -157,9 +153,9 @@ kotlin {
 
 
 openApiGenerate {
-    generatorName.set("kotlin-spring")
+    generatorName.set("spring")
     inputSpec.set("$rootDir/src/jvmMain/resources/api/SyncService_OpenApi_1.0.0.yaml")
-    outputDir.set("$buildDir/openapi-generated-src")
+    outputDir.set("$rootDir/src/jvmMain/java")
     configOptions.set(
         mapOf(
 
@@ -197,23 +193,37 @@ application {
 //    mainClass.set("scorewarrior.syncService.SyncApplication")
 //}
 
-//todo fix fail in build tasks.named<Copy>("jvmProcessResources") {
-//    val jsBrowserProductionWebpack = tasks.named("jsBrowserProductionWebpack")
-//    dependsOn(jsBrowserProductionWebpack)
-//}
+//todo fix fail in build
+tasks.named<Copy>("jvmProcessResources") {
+    val jsBrowserProductionWebpack = tasks.named("jsBrowserDevelopmentWebpack")
+    dependsOn(jsBrowserProductionWebpack)
+    val jsBrowserDistribution = tasks.named("jsBrowserDistribution")
+    from(jsBrowserDistribution) {
+        into("static")
+    }
+}
 
 //todo fix failin build include JS artifacts in any JAR we generate
-//tasks.getByName<Jar>("jvmJar") {
-//    val taskName = "jsBrowserDevelopmentWebpack"
-//    val webpackTask = tasks.getByName<KotlinWebpack>(taskName)
-//    dependsOn(webpackTask) // make sure JS gets compiled first
-//    from(File(webpackTask.destinationDirectory, webpackTask.outputFileName)) // bring output file along into the JAR
-//}
+tasks.getByName<Jar>("jvmJar") {
+    val taskName = "jsBrowserDevelopmentWebpack"
+    val webpackTask = tasks.getByName<KotlinWebpack>(taskName)
+    dependsOn(webpackTask) // make sure JS gets compiled first
+    from(File(webpackTask.destinationDirectory, webpackTask.outputFileName)) // bring output file along into the JAR
+}
 
+tasks.getByName("jsBrowserDevelopmentWebpack") {
+    dependsOn(tasks.named("jsDevelopmentExecutableCompileSync"))
+    dependsOn(tasks.named("jsProductionExecutableCompileSync"))
+}
+
+tasks.getByName("jsBrowserProductionWebpack") {
+    dependsOn(tasks.named("jsDevelopmentExecutableCompileSync"))
+    dependsOn(tasks.named("jsProductionExecutableCompileSync"))
+}
 
 
 tasks.getByName<JavaExec>("run") {
-    dependsOn(tasks.named<Jar>("jvmJar"))
+    //dependsOn(tasks.named<Jar>("jvmJar"))
     classpath(tasks.getByName<Jar>("jvmJar")) // so that the JS artifacts generated by `jvmJar` can be found and served
 }
 

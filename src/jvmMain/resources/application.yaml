@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   application:
     name: sync-management
   data:
@@ -28,6 +32,8 @@ logging:
 client:
   address: "*"
 imageFolder:
-  path: "/data"
+  path: "./data"
 server:
   port: 8082
+  tomcat:
+    max-swallow-size: 10MB

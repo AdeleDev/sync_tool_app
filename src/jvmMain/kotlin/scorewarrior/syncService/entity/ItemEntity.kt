@@ -12,5 +12,5 @@ open class ItemEntity(@NotNull @Size(min = 1, max = 100) name: String) : BaseEnt
     @Size(min = 1)
     var userId: Long? = null
 
-
+    var drafts: ArrayList<ItemEntity>? =null
 }
