@@ -12,8 +12,7 @@ class HeroEntity(
     @Size(min = 1, max = 200) var icon: String?,
 ) : ItemEntity(name) {
 
-    lateinit var drafts: ArrayList<HeroEntity>
-
+    var drafts: ArrayList<HeroEntity>? =null
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -22,8 +21,6 @@ class HeroEntity(
 
         if (mainImage != other.mainImage) return false
         if (icon != other.icon) return false
-        if (name != other.name) return false
-        if (userId != other.userId) return false
         if (drafts != other.drafts) return false
 
         return true
@@ -32,9 +29,7 @@ class HeroEntity(
     override fun hashCode(): Int {
         var result = mainImage?.hashCode() ?: 0
         result = 31 * result + (icon?.hashCode() ?: 0)
-        result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (userId?.hashCode() ?: 0)
-        result = 31 * result + drafts.hashCode()
+        result = 31 * result + (drafts?.hashCode() ?: 0)
         return result
     }
 

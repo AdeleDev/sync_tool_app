@@ -127,14 +127,14 @@ class SyncServiceImpl : SyncService {
     private fun removeImages(oldHero: HeroEntity) {
         oldHero.mainImage?.let { removeFile(it) }
         oldHero.icon?.let { removeFile(it) }
-        oldHero.drafts.forEach { d -> removeImages(d as HeroEntity) }
+        oldHero.drafts?.forEach { d -> removeImages(d as HeroEntity) }
     }
 
     private fun removeImages(oldWeapon: WeaponEntity) {
         oldWeapon.mainImage?.let { removeFile(it) }
         oldWeapon.entireIcon?.let { removeFile(it) }
         oldWeapon.brokenIcon?.let { removeFile(it) }
-        oldWeapon.drafts.forEach { d -> removeImages(d as WeaponEntity) }
+        oldWeapon.drafts?.forEach { d -> removeImages(d as WeaponEntity) }
     }
 
     private fun removeFile(filePath: String) {
@@ -234,22 +234,23 @@ class SyncServiceImpl : SyncService {
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            val draft = heroEntities.get().drafts
-            if (draft.isEmpty()) {
+            val draftHero = heroEntities.get().drafts
+            if (draftHero==null) {
                 throw ElementNotExistException()
             } else {
-                fieldsMapper.heroEntityToDto(draft.filter { t-> t.userId==userId}[0])
+                fieldsMapper.heroEntityToDto(draftHero.filter { t-> t.userId==userId}[0])
             }
+
         } else {
             val weaponEntities = weaponRepository.findById(elementName)
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             }
-            val draft = weaponEntities.get().drafts
-            if (draft.isEmpty()) {
+            val draftWeapon = weaponEntities.get().drafts
+            if (draftWeapon==null) {
                 throw ElementNotExistException()
             } else {
-                fieldsMapper.weaponEntityToDto(draft.filter { t-> t.userId==userId}[0])
+                fieldsMapper.weaponEntityToDto(draftWeapon.filter { t-> t.userId==userId}[0])
             }
         }
     }
