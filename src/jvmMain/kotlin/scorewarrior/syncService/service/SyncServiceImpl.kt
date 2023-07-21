@@ -22,7 +22,6 @@ import scorewarrior.syncservice.model.GetAllElements200ResponseInnerDto
 import scorewarrior.syncservice.model.HeroDto
 import scorewarrior.syncservice.model.WeaponDto
 import java.io.File
-import java.time.OffsetDateTime
 import java.util.*
 
 @Component
@@ -49,8 +48,8 @@ class SyncServiceImpl : SyncService {
                 throw ElementAlreadyExistException(name)
             }
             val heroEntity = HeroEntity(name, null, null)
-            heroEntity.createdTimestamp = OffsetDateTime.now()
-            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//            heroEntity.createdTimestamp = OffsetDateTime.now()
+//            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
             heroRepository.save(heroEntity)
             LOGGER.info("Hero with name = $name was created")
             return AddElement201ResponseDto(heroEntity.name)
@@ -60,8 +59,8 @@ class SyncServiceImpl : SyncService {
                 throw ElementAlreadyExistException(name)
             }
             val weaponEntity = WeaponEntity(name, null, null, null)
-            weaponEntity.createdTimestamp = OffsetDateTime.now()
-            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//            weaponEntity.createdTimestamp = OffsetDateTime.now()
+//            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
             weaponRepository.save(weaponEntity)
             LOGGER.info("Weapon with name = $name was created")
             return AddElement201ResponseDto(weaponEntity.name)
@@ -104,7 +103,7 @@ class SyncServiceImpl : SyncService {
     private fun updateDraftEntity(baseEntity: ItemEntity, draftEntity: ItemEntity, userId: Long) {
         removeDraft(baseEntity, userId)
 
-        baseEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//        //baseEntity.lastModifiedTimestamp = OffsetDateTime.now()
         baseEntity.drafts.add(draftEntity)
         draftEntity.userId = userId
     }
@@ -154,7 +153,7 @@ class SyncServiceImpl : SyncService {
                 removeImages(heroEntities.get())
             }
             val heroEntity: HeroEntity = fieldsMapper.heroDtoToEntity(dto)
-            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
             heroEntity.let { heroRepository.save(it) }
             LOGGER.info("Hero with name  = " + dto.name + " was updated")
         } else {
@@ -167,7 +166,7 @@ class SyncServiceImpl : SyncService {
                 removeImages(weaponEntities.get())
             }
             val weaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto)
-            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
             weaponEntity.let { weaponRepository.save(it) }
             LOGGER.info("Weapon with name  = " + dto.name + " was updated")
         }
@@ -183,7 +182,7 @@ class SyncServiceImpl : SyncService {
             }
             val heroEntity: HeroEntity = heroEntities.get()
             removeDraft(heroEntity, userId)
-            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//            heroEntity.lastModifiedTimestamp = OffsetDateTime.now()
             heroEntity.let { heroRepository.save(it) }
             LOGGER.info("Draft hero info from user = $userId for element with name  = $elementName was deleted")
         } else {
@@ -193,7 +192,7 @@ class SyncServiceImpl : SyncService {
             }
             val weaponEntity: WeaponEntity = weaponEntities.get()
             removeDraft(weaponEntity, userId)
-            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
+//            weaponEntity.lastModifiedTimestamp = OffsetDateTime.now()
             weaponEntity.let { weaponRepository.save(it) }
             LOGGER.info("Draft weapon info from user = $userId for element with name  = $elementName was deleted")
         }

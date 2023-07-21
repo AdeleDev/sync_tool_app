@@ -1,14 +1,23 @@
 spring:
   application:
     name: sync-management
+  data:
+    mongodb:
+      uri: mongodb://root:pass@localhost:27017/admin?authSource=admin
+#      host: localhost
+#      port: 27017
+#      database: test
+#      username: root
+#      password: pass
+#      authentication-database: admin
 #  datasource:
 #    url: jdbc:h2:file:./data/testdb
 #    username: sa
 #    password:
 #    driver-class-name: org.h2.Driver
-#  jpa:
-#    hibernate:
-#      ddl-auto: create
+  jpa:
+    hibernate:
+      ddl-auto: create
 #      naming:
 #        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
 #        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
@@ -17,6 +26,8 @@ logging:
   level:
     root: INFO
 client:
-  address: "http://localhost:3000"
+  address: "http://localhost:8080"
 imageFolder:
   path: "/data"
+server:
+  port: 8082
