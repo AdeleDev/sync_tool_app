@@ -52,7 +52,7 @@ class SyncApiImpl : ElementApi {
         userId: @Valid Long
     ): ResponseEntity<Void> {
         return try {
-            service?.deleteDraftElement(type, type, userId)
+            service?.deleteDraftElement(name, type, userId)
             ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         } catch (e: ElementNotExistException) {
             e.printStackTrace()

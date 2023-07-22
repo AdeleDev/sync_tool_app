@@ -132,7 +132,7 @@ class SyncServiceImpl : SyncService {
                     is HeroEntity -> removeImages(it)
                     else -> {}
                 }
-                //todo baseEntity.drafts?.remove(it)
+                baseEntity.drafts?.remove(it)
             }
         }
     }
