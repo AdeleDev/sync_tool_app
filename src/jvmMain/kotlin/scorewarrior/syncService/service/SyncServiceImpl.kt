@@ -133,6 +133,9 @@ class SyncServiceImpl : SyncService {
                     else -> {}
                 }
                 baseEntity.drafts?.remove(it)
+                if( baseEntity.drafts?.size==0){
+                    baseEntity.drafts=null
+                }
             }
         }
     }
