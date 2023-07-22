@@ -67,9 +67,9 @@ paths:
               schema:
                 type: array
                 items:
-                  oneOf:
-                    - $ref: '#/components/schemas/Hero'
-                    - $ref: '#/components/schemas/Weapon'
+                  type: string
+                  minLength: 1
+                  maxLength: 100
         '204':
           description: No any element found
           content: { }
@@ -129,7 +129,7 @@ paths:
         '200':
           description: Successful operation
           content:
-            application/json:
+            multipart/form-data:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/Hero'
@@ -174,7 +174,7 @@ paths:
         '200':
           description: Successful operation
           content:
-            application/json:
+            multipart/form-data:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/Hero'

@@ -20,7 +20,7 @@ import scorewarrior.syncService.repository.HeroRepository
 import scorewarrior.syncService.repository.WeaponRepository
 import scorewarrior.syncService.service.api.SyncService
 import scorewarrior.syncservice.model.AddElement201ResponseDto
-import scorewarrior.syncservice.model.GetAllElements200ResponseInnerDto
+import scorewarrior.syncservice.model.UpdateElementRequestDto
 import java.io.File
 import java.util.*
 
@@ -97,7 +97,7 @@ class SyncServiceImpl : SyncService {
             }
             val weaponEntity: WeaponEntity = weaponEntities.get()
             removeDraft(weaponEntity, userId)
-            val draftWeaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto)
+            val draftWeaponEntity: WeaponEntity = fieldsMapper.weaponDtoToEntity(dto, userId)
 
             updateDraftEntity(weaponEntity, draftWeaponEntity, userId)
 
@@ -154,7 +154,11 @@ class SyncServiceImpl : SyncService {
     }
 
     private fun removeFile(filePath: String) {
-        FileUtils.forceDelete(File(filePath))
+        LOGGER.info("Remove file $filePath")
+        val file = File(filePath)
+        if (file.exists()) {
+            FileUtils.forceDelete(file)
+        }
     }
 
     @Throws(ElementNotExistException::class, ElementAlreadyExistException::class)
@@ -214,22 +218,20 @@ class SyncServiceImpl : SyncService {
         }
     }
 
-    override fun getAllEntities(type: String): List<GetAllElements200ResponseInnerDto> {
+    override fun getAllEntities(type: String): List<String> {
         LOGGER.info("Got get request for all elements of type = $type")
         return if (type == ElementTypes.HERO.value) {
             val heroEntities: MutableList<HeroEntity?> = heroRepository.findAll()
             if (heroEntities.isEmpty()) {
                 throw ElementNotExistException()
             }
-            heroEntities.stream()
-                .map { el -> el?.let { fieldsMapper.heroEntityToDto(it) } }.toList()
+            heroEntities.stream().map { el -> el?.name!! }.toList()
         } else {
             val weaponEntities: MutableList<WeaponEntity?> = weaponRepository.findAll()
             if (weaponEntities.isEmpty()) {
                 throw ElementNotExistException()
             }
-            weaponEntities.stream()
-                .map { el -> el?.let { fieldsMapper.weaponEntityToDto(it) } }.toList()
+            weaponEntities.stream().map { el -> el?.name!! }.toList()
         }
 
     }
@@ -239,7 +241,7 @@ class SyncServiceImpl : SyncService {
         elementName: String,
         type: String,
         userId: Long
-    ): GetAllElements200ResponseInnerDto? {
+    ): UpdateElementRequestDto<Any>? {
         LOGGER.info("Got get request for draft element of type = $type with id = $elementName from user = $userId")
         if (elementName.isEmpty() || elementName.isBlank()) {
             throw InvalidNameException()
@@ -272,7 +274,7 @@ class SyncServiceImpl : SyncService {
     }
 
     @Throws(ElementNotExistException::class, InvalidNameException::class)
-    override fun getElementByName(elementName: String, type: String): GetAllElements200ResponseInnerDto? {
+    override fun getElementByName(elementName: String, type: String): UpdateElementRequestDto<Any>? {
         LOGGER.info("Got get request for element of type = $type with id = $elementName")
         if (elementName.isEmpty() || elementName.isBlank()) {
             throw InvalidNameException()

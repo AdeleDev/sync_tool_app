@@ -2,6 +2,7 @@ package scorewarrior.syncService.api
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -16,7 +17,7 @@ import scorewarrior.syncService.service.SyncServiceImpl
 import scorewarrior.syncService.service.api.SyncService
 import scorewarrior.syncservice.api.ElementApi
 import scorewarrior.syncservice.model.AddElement201ResponseDto
-import scorewarrior.syncservice.model.GetAllElements200ResponseInnerDto
+import scorewarrior.syncservice.model.UpdateElementRequestDto
 import javax.validation.Valid
 
 @Component
@@ -60,9 +61,9 @@ class SyncApiImpl : ElementApi {
         }
     }
 
-    override fun getAllElements(type: @Valid String): ResponseEntity<List<GetAllElements200ResponseInnerDto>> {
+    override fun getAllElements(type: @Valid String): ResponseEntity<List<String>> {
         return try {
-            val elements: List<GetAllElements200ResponseInnerDto>? = service?.getAllEntities(type)
+            val elements: List<String>? = service?.getAllEntities(type)
             ResponseEntity.status(HttpStatus.OK).body(elements)
         } catch (e: ElementNotExistException) {
             e.printStackTrace()
@@ -75,10 +76,10 @@ class SyncApiImpl : ElementApi {
         type: @Valid String,
         name: @Valid String,
         userId: @Valid Long
-    ): ResponseEntity<GetAllElements200ResponseInnerDto> {
+    ): ResponseEntity<UpdateElementRequestDto<Any>> {
         return try {
             val element = service?.getDraftElementByName(name, type, userId)
-            ResponseEntity.status(HttpStatus.OK).body(element)
+            ResponseEntity.status(HttpStatus.OK).contentType(MediaType.MULTIPART_FORM_DATA).body(element)
         } catch (e: ElementNotExistException) {
             e.printStackTrace()
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
@@ -91,10 +92,10 @@ class SyncApiImpl : ElementApi {
     override fun getElementByName(
         type: @Valid String,
         name: @Valid String
-    ): ResponseEntity<GetAllElements200ResponseInnerDto> {
+    ): ResponseEntity<UpdateElementRequestDto<Any>> {
         return try {
             val element = service?.getElementByName(name, type)
-            ResponseEntity.status(HttpStatus.OK).body(element)
+            ResponseEntity.status(HttpStatus.OK).contentType(MediaType.MULTIPART_FORM_DATA).body(element)
         } catch (e: ElementNotExistException) {
             e.printStackTrace()
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()

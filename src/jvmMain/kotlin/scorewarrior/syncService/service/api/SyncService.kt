@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import scorewarrior.syncService.exception.ElementAlreadyExistException
 import scorewarrior.syncService.exception.ElementNotExistException
 import scorewarrior.syncservice.model.AddElement201ResponseDto
-import scorewarrior.syncservice.model.GetAllElements200ResponseInnerDto
+import scorewarrior.syncservice.model.UpdateElementRequestDto
 
 @Component
 @Transactional
@@ -23,11 +23,11 @@ interface SyncService {
     fun deleteDraftElement(elementName: String, type: String, userId: Long)
 
     @Throws(ElementNotExistException::class)
-    fun getAllEntities(type: String): List<GetAllElements200ResponseInnerDto>
+    fun getAllEntities(type: String): List<String>
 
     @Throws(ElementNotExistException::class)
-    fun getDraftElementByName(elementName: String, type: String, userId: Long): GetAllElements200ResponseInnerDto?
+    fun getDraftElementByName(elementName: String, type: String, userId: Long): UpdateElementRequestDto<Any>?
 
     @Throws(ElementNotExistException::class)
-    fun getElementByName(elementName: String, type: String): GetAllElements200ResponseInnerDto?
+    fun getElementByName(elementName: String, type: String): UpdateElementRequestDto<Any>?
 }

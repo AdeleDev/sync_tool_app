@@ -3,12 +3,14 @@ package scorewarrior.syncService.mappers
 import org.apache.tomcat.util.http.fileupload.FileUtils
 import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.FileSystemResource
 import org.springframework.stereotype.Component
+import scorewarrior.syncService.LOGGER
 import scorewarrior.syncService.api.dto.HeroData
 import scorewarrior.syncService.api.dto.WeaponData
 import scorewarrior.syncService.entity.HeroEntity
 import scorewarrior.syncService.entity.WeaponEntity
-import scorewarrior.syncservice.model.GetAllElements200ResponseInnerDto
+import scorewarrior.syncservice.model.UpdateElementRequestDto
 import java.io.File
 import java.io.FileOutputStream
 
@@ -26,35 +28,34 @@ class FieldsMapper() {
         return HeroEntity(heroDto.name, storeImageFile(heroDto, userId), storeIconFile(heroDto, userId))
     }
 
-    fun weaponDtoToEntity(weaponDto: WeaponData): WeaponEntity {
+    fun weaponDtoToEntity(weaponDto: WeaponData, userId: Long? = null): WeaponEntity {
         return WeaponEntity(
             weaponDto.name,
-            storeImageFile(weaponDto),
-            storeEntireIconFile(weaponDto),
-            storeBrokenIconFile(weaponDto)
+            storeImageFile(weaponDto, userId),
+            storeEntireIconFile(weaponDto, userId),
+            storeBrokenIconFile(weaponDto, userId)
         )
     }
 
-    fun heroEntityToDto(heroEntity: HeroEntity): GetAllElements200ResponseInnerDto {
+    fun heroEntityToDto(heroEntity: HeroEntity): UpdateElementRequestDto<Any> {
         return heroEntity.name?.let { it ->
-            HeroData(
-                it, null, null
-            )
-//                heroEntity.mainImage?.let { FileInputStream(it) }?.let { InputStreamResource(it) },
-//                heroEntity.icon?.let { FileInputStream(it) }?.let { InputStreamResource(it) })
+            val form = UpdateElementRequestDto<Any>()
+            form.add("name", it)
+            heroEntity.mainImage?.let { form.add("mainImage", (FileSystemResource(it))) }
+            heroEntity.icon?.let { form.add("icon", (FileSystemResource(it))) }
+            form
         }!!
 
     }
 
-    fun weaponEntityToDto(weaponEntity: WeaponEntity): GetAllElements200ResponseInnerDto {
+    fun weaponEntityToDto(weaponEntity: WeaponEntity): UpdateElementRequestDto<Any> {
         return weaponEntity.name?.let { it ->
-            WeaponData(
-                it,
-                null, null, null
-            )
-//                weaponEntity.mainImage?.let { FileInputStream(it) }?.let { InputStreamResource(it) },
-//                weaponEntity.entireIcon?.let { FileInputStream(it) }?.let { InputStreamResource(it) },
-//                weaponEntity.brokenIcon?.let { FileInputStream(it) }?.let { InputStreamResource(it) })
+            val form = UpdateElementRequestDto<Any>()
+            form.add("name", it)
+            weaponEntity.mainImage?.let { form.add("mainImage", (FileSystemResource(it))) }
+            weaponEntity.entireIcon?.let { form.add("entireIcon", (FileSystemResource(it))) }
+            weaponEntity.brokenIcon?.let { form.add("brokenIcon", (FileSystemResource(it))) }
+            form
         }!!
     }
 
@@ -68,6 +69,7 @@ class FieldsMapper() {
             FileOutputStream(file).use { fos ->
                 IOUtils.copy(heroDto.mainImage.inputStream, fos)
             }
+            LOGGER.info("Save file " + filePath)
             return filePath
         }
         return null
@@ -83,6 +85,7 @@ class FieldsMapper() {
             FileOutputStream(file).use { fos ->
                 IOUtils.copy(heroDto.icon.inputStream, fos)
             }
+            LOGGER.info("Save file " + filePath)
             return filePath
         }
         return null
@@ -90,41 +93,47 @@ class FieldsMapper() {
     }
 
 
-    fun storeImageFile(weaponDto: WeaponData): String? {
-        val file = File(weaponFolder + "/image-" + weaponDto.name)
+    fun storeImageFile(weaponDto: WeaponData, userId: Long?): String? {
+        val filePath = heroFolder + "/" + weaponDto.mainImage?.name + "-" + weaponDto.name + (userId ?: "")
+        val file = File(filePath)
         if (weaponDto.mainImage != null) {
             FileUtils.forceMkdir(File(weaponFolder))
             file.createNewFile()
             FileOutputStream(file).use { fos ->
                 IOUtils.copy(weaponDto.mainImage.inputStream, fos)
             }
-            return file.name
+            LOGGER.info("Save file " + filePath)
+            return filePath
         }
         return null
     }
 
-    fun storeEntireIconFile(weaponDto: WeaponData): String? {
-        val file = File(weaponFolder + "/entireIcon-" + weaponDto.name)
+    fun storeEntireIconFile(weaponDto: WeaponData, userId: Long?): String? {
+        val filePath = heroFolder + "/" + weaponDto.entireIcon?.name + "-" + weaponDto.name + (userId ?: "")
+        val file = File(filePath)
         if (weaponDto.entireIcon != null) {
             FileUtils.forceMkdir(File(weaponFolder))
             file.createNewFile()
             FileOutputStream(file).use { fos ->
                 IOUtils.copy(weaponDto.entireIcon.inputStream, fos)
             }
-            return file.name
+            LOGGER.info("Save file " + filePath)
+            return filePath
         }
         return null
     }
 
-    fun storeBrokenIconFile(weaponDto: WeaponData): String? {
-        val file = File(weaponFolder + "/brokenIcon-" + weaponDto.name)
+    fun storeBrokenIconFile(weaponDto: WeaponData, userId: Long?): String? {
+        val filePath = heroFolder + "/" + weaponDto.brokenIcon?.name + "-" + weaponDto.name + (userId ?: "")
+        val file = File(filePath)
         if (weaponDto.brokenIcon != null) {
             FileUtils.forceMkdir(File(weaponFolder))
             file.createNewFile()
             FileOutputStream(file).use { fos ->
                 IOUtils.copy(weaponDto.brokenIcon.inputStream, fos)
             }
-            return file.name
+            LOGGER.info("Save file " + filePath)
+            return filePath
         }
         return null
     }

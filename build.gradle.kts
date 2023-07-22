@@ -99,6 +99,7 @@ kotlin {
                 implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
                 implementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
                 implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
+                implementation("commons-fileupload:commons-fileupload:1.5")
 
             }
         }
