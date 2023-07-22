@@ -59,10 +59,14 @@ class FieldsMapper() {
         }!!
     }
 
+    private fun buildHeroFilePath(imageName: String, elementName: String, userId: String): String {
+        return "$heroFolder/$imageName-$elementName-$userId"
+    }
+
 
     private fun storeImageFile(heroDto: HeroData, userId: Long?): String? {
-        val filePath = heroFolder + "/" + heroDto.mainImage?.name + "-" + heroDto.name + (userId ?: "");
         if (heroDto.mainImage != null) {
+            val filePath = buildHeroFilePath(heroDto.mainImage.name,heroDto.name, userId.toString() )
             val file = File(filePath)
             FileUtils.forceMkdir(File(heroFolder))
             file.createNewFile()
@@ -76,8 +80,8 @@ class FieldsMapper() {
     }
 
     private fun storeIconFile(heroDto: HeroData, userId: Long?): String? {
-        val filePath = heroFolder + "/" + heroDto.icon?.name + "-" + heroDto.name + (userId ?: "")
         if (heroDto.icon != null) {
+            val filePath = buildHeroFilePath(heroDto.icon.name,heroDto.name, userId.toString() )
             val file = File(filePath)
 
             FileUtils.forceMkdir(File(heroFolder))
@@ -93,10 +97,14 @@ class FieldsMapper() {
     }
 
 
+    private fun buildWeaponFilePath(imageName: String, elementName: String, userId: String): String {
+        return "$weaponFolder/$imageName-$elementName-$userId"
+    }
+
     fun storeImageFile(weaponDto: WeaponData, userId: Long?): String? {
-        val filePath = heroFolder + "/" + weaponDto.mainImage?.name + "-" + weaponDto.name + (userId ?: "")
-        val file = File(filePath)
         if (weaponDto.mainImage != null) {
+            val filePath = buildWeaponFilePath(weaponDto.mainImage.name, weaponDto.name, userId.toString())
+            val file = File(filePath)
             FileUtils.forceMkdir(File(weaponFolder))
             file.createNewFile()
             FileOutputStream(file).use { fos ->
@@ -109,9 +117,9 @@ class FieldsMapper() {
     }
 
     fun storeEntireIconFile(weaponDto: WeaponData, userId: Long?): String? {
-        val filePath = heroFolder + "/" + weaponDto.entireIcon?.name + "-" + weaponDto.name + (userId ?: "")
-        val file = File(filePath)
         if (weaponDto.entireIcon != null) {
+            val filePath = buildWeaponFilePath(weaponDto.entireIcon.name, weaponDto.name, userId.toString())
+            val file = File(filePath)
             FileUtils.forceMkdir(File(weaponFolder))
             file.createNewFile()
             FileOutputStream(file).use { fos ->
@@ -124,9 +132,9 @@ class FieldsMapper() {
     }
 
     fun storeBrokenIconFile(weaponDto: WeaponData, userId: Long?): String? {
-        val filePath = heroFolder + "/" + weaponDto.brokenIcon?.name + "-" + weaponDto.name + (userId ?: "")
-        val file = File(filePath)
         if (weaponDto.brokenIcon != null) {
+            val filePath = buildWeaponFilePath(weaponDto.brokenIcon.name, weaponDto.name, userId.toString())
+            val file = File(filePath)
             FileUtils.forceMkdir(File(weaponFolder))
             file.createNewFile()
             FileOutputStream(file).use { fos ->
