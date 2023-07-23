@@ -1,7 +1,6 @@
-# Bus Depot Backend App 
+# Sync Service App 
 
-Bus Depot CRUD Application on SpringBoot. Working with h2 DB via Hibernate.
-Working in pair with [Frontend React App](https://github.com/AdeleDev/bus_depot_react).
+CRUD Application on Kotlin / React JS multiplatform. Working with mongo DB via Hibernate.
 
 ### Built With
 
@@ -29,23 +28,18 @@ https://github.com/AdeleDev/sync_tool_app/blob/master/src/jvmMain/resources/api/
 #### Build project:
 
 ```sh
-gradle clean
-```
- Setup mongodb path in application.yaml:
-
-```
-resources/application.yaml
+gradlew clean
 ```
 
 Start mongo db via Docker:
-```
- docker-compose up -d
+```sh
+docker-compose up -d
 ```
 
 Run service:
 
 ```sh
-
+gradlew run
 ```
 
 #### API request base URL :

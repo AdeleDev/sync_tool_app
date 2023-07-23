@@ -103,7 +103,8 @@ paths:
                   maxLength: 100
                 user_id:
                   description: id of editor
-                  type: number
+                  type: integer
+                  format: int64
                   minimum: 1
 
         required: true

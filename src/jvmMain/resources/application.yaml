@@ -19,7 +19,7 @@ client:
 imageFolder:
   path: "./data"
 server:
-  port: 8082
+  port: 8080
   tomcat:
     max-swallow-size: 10MB
     accesslog:

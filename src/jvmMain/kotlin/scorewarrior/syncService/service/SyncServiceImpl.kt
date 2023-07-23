@@ -22,11 +22,11 @@ import scorewarrior.syncService.service.api.SyncService
 import scorewarrior.syncservice.model.AddElement201ResponseDto
 import scorewarrior.syncservice.model.AddElementRequestDto
 import java.io.File
-import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 @Component
@@ -138,16 +138,21 @@ class SyncServiceImpl : SyncService {
         }
     }
 
-    private fun removeImages(oldHero: HeroEntity) {
+    private fun removeImagesWithoutDraft(oldHero: HeroEntity) {
         oldHero.mainImage?.let { removeFile(it) }
         oldHero.icon?.let { removeFile(it) }
+    }
+    private fun removeImages(oldHero: HeroEntity) {
+        removeImagesWithoutDraft(oldHero)
         oldHero.drafts?.forEach { d -> removeImages(d as HeroEntity) }
     }
-
-    private fun removeImages(oldWeapon: WeaponEntity) {
+    private fun removeImagesWithoutDraft(oldWeapon: WeaponEntity) {
         oldWeapon.mainImage?.let { removeFile(it) }
         oldWeapon.entireIcon?.let { removeFile(it) }
         oldWeapon.brokenIcon?.let { removeFile(it) }
+    }
+    private fun removeImages(oldWeapon: WeaponEntity) {
+        removeImagesWithoutDraft(oldWeapon)
         oldWeapon.drafts?.forEach { d -> removeImages(d as WeaponEntity) }
     }
 
@@ -161,39 +166,40 @@ class SyncServiceImpl : SyncService {
 
 
     private fun renameFileAndGetNewPath(oldPath: String): String {
-        val newPath = oldPath.substringBeforeLast("-") + "." + oldPath.substringAfterLast(".")
+        val newPath = oldPath.substringBeforeLast("/") + "/" + oldPath.substringAfter("-")
         val source: Path = Paths.get(oldPath)
-        Files.move(source, source.resolveSibling(newPath))
+        Files.move(source, Paths.get(newPath))
         return newPath
     }
 
     @Throws(ElementNotExistException::class, ElementAlreadyExistException::class)
-    override fun updateElement(elementName: String, type: String, userId: BigDecimal) {
+    override fun updateElement(elementName: String, type: String, userId: Long) {
         LOGGER.info("Got update request for element type of $type with name = $elementName")
         if (type == ElementTypes.HERO.value) {
             val heroEntities: Optional<HeroEntity?> = heroRepository.findById(elementName)
             if (heroEntities.isEmpty) {
                 throw ElementNotExistException()
             } else {
-                removeImages(heroEntities.get())
                 val draftHeroes: ArrayList<ItemEntity>? = heroEntities.get().drafts
-                if (draftHeroes == null) {
+                if (draftHeroes.isNullOrEmpty()) {
                     throw ElementNotExistException()
                 } else {
-                    val draftHero = draftHeroes.filter { t -> t.userId == userId.toLong() }[0] as HeroEntity
+
+                    val draftHero = draftHeroes.filter { t -> t.userId == userId }[0] as HeroEntity
                     val draftImagePath = draftHero.mainImage
-                    val draftIconPath = draftHero.mainImage
+                    val draftIconPath = draftHero.icon
 
                     val entityToUpdate = heroEntities.get()
-                    removeImages(entityToUpdate)
+                    removeImagesWithoutDraft(heroEntities.get())
                     entityToUpdate.mainImage = draftImagePath?.let { renameFileAndGetNewPath(it) }
                     LOGGER.info(entityToUpdate.mainImage)
 
                     entityToUpdate.icon = draftIconPath?.let { renameFileAndGetNewPath(it) }
                     LOGGER.info(entityToUpdate.icon)
 
+                    entityToUpdate.drafts = draftHeroes.filter { t -> t.userId != userId }.toCollection(ArrayList())
+
                     entityToUpdate.let { heroRepository.save(it) }
-                    removeDraft(entityToUpdate, userId.toLong())
                 }
             }
         } else {
@@ -201,23 +207,22 @@ class SyncServiceImpl : SyncService {
             if (weaponEntities.isEmpty) {
                 throw ElementNotExistException()
             } else {
-                removeImages(weaponEntities.get())
                 val draftWeapons: ArrayList<ItemEntity>? = weaponEntities.get().drafts
-                if (draftWeapons == null) {
+                if (draftWeapons.isNullOrEmpty()) {
                     throw ElementNotExistException()
                 } else {
-                    val draftWeapon = draftWeapons.filter { t -> t.userId == userId.toLong() }[0] as WeaponEntity
+                    val draftWeapon = draftWeapons.filter { t -> t.userId == userId }[0] as WeaponEntity
                     val draftImagePath = draftWeapon.mainImage
                     val draftEntireIconPath = draftWeapon.entireIcon
                     val draftBrokenIconPath = draftWeapon.brokenIcon
 
                     val entityToUpdate = weaponEntities.get()
-                    removeImages(entityToUpdate)
+                    removeImagesWithoutDraft(weaponEntities.get())
                     entityToUpdate.mainImage = draftImagePath?.let { renameFileAndGetNewPath(it) }
                     entityToUpdate.entireIcon = draftEntireIconPath?.let { renameFileAndGetNewPath(it) }
                     entityToUpdate.brokenIcon = draftBrokenIconPath?.let { renameFileAndGetNewPath(it) }
+                    entityToUpdate.drafts = draftWeapons.filter { t -> t.userId != userId }.toCollection(ArrayList())
                     entityToUpdate.let { weaponRepository.save(it) }
-                    removeDraft(entityToUpdate, userId.toLong())
                 }
             }
         }
@@ -282,7 +287,7 @@ class SyncServiceImpl : SyncService {
                 throw ElementNotExistException()
             }
             val draftHero: ArrayList<ItemEntity>? = heroEntities.get().drafts
-            if (draftHero == null) {
+            if (draftHero.isNullOrEmpty()) {
                 throw ElementNotExistException()
             } else {
                 fieldsMapper.heroEntityToDto(draftHero.filter { t -> t.userId == userId }[0] as HeroEntity)
@@ -294,7 +299,7 @@ class SyncServiceImpl : SyncService {
                 throw ElementNotExistException()
             }
             val draftWeapon = weaponEntities.get().drafts
-            if (draftWeapon == null) {
+            if (draftWeapon.isNullOrEmpty()) {
                 throw ElementNotExistException()
             } else {
                 fieldsMapper.weaponEntityToDto(draftWeapon.filter { t -> t.userId == userId }[0] as WeaponEntity)

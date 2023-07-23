@@ -6,7 +6,6 @@ import scorewarrior.syncService.exception.ElementAlreadyExistException
 import scorewarrior.syncService.exception.ElementNotExistException
 import scorewarrior.syncservice.model.AddElement201ResponseDto
 import scorewarrior.syncservice.model.AddElementRequestDto
-import java.math.BigDecimal
 
 @Component
 @Transactional
@@ -18,7 +17,7 @@ interface SyncService {
     fun updateDraftElement(dto: Any, type: String, userId: Long)
 
     @Throws(ElementAlreadyExistException::class)
-    fun updateElement(elementName: String, type: String, userId: BigDecimal)
+    fun updateElement(elementName: String, type: String, userId: Long)
 
     @Throws(ElementNotExistException::class)
     fun deleteDraftElement(elementName: String, type: String, userId: Long)

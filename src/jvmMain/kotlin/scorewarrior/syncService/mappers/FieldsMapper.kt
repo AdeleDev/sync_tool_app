@@ -14,6 +14,7 @@ import scorewarrior.syncservice.model.AddElementRequestDto
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import javax.annotation.PostConstruct
 
 @Component
 class FieldsMapper() {
@@ -24,8 +25,13 @@ class FieldsMapper() {
     private val heroFolder: String = "$imageFolder/hero"
     private val weaponFolder: String = "$imageFolder/weapon"
 
-    fun heroDtoToEntity(heroDto: HeroData, userId: Long? = null): HeroEntity {
+    @PostConstruct
+    fun init() {
+        FileUtils.forceMkdir(File(heroFolder))
+        FileUtils.forceMkdir(File(weaponFolder))
+    }
 
+    fun heroDtoToEntity(heroDto: HeroData, userId: Long? = null): HeroEntity {
         return HeroEntity(heroDto.name, storeImageFile(heroDto, userId), storeIconFile(heroDto, userId))
     }
 
@@ -63,7 +69,6 @@ class FieldsMapper() {
 
     private fun createImageFile(filePath: String, inputStream: InputStream) {
         val file = File(filePath)
-        FileUtils.forceMkdir(File(weaponFolder))
         file.createNewFile()
         FileOutputStream(file).use { fos ->
             IOUtils.copy(inputStream, fos)
@@ -73,7 +78,7 @@ class FieldsMapper() {
 
 
     private fun buildHeroFilePath(imageName: String, elementName: String, userId: String, original: String): String {
-        return "$heroFolder/$imageName-$elementName-$userId-$original"
+        return "$heroFolder/$userId-$imageName-$elementName-$original"
     }
 
 
@@ -101,7 +106,7 @@ class FieldsMapper() {
 
 
     private fun buildWeaponFilePath(imageName: String, elementName: String, userId: String, original: String): String {
-        return "$weaponFolder/$imageName-$elementName-$userId-$original"
+        return "$weaponFolder/$userId-$imageName-$elementName-$original"
     }
 
     fun storeImageFile(weaponDto: WeaponData, userId: Long?): String? {
