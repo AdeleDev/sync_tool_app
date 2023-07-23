@@ -1,6 +1,6 @@
 # Sync Service App 
 
-CRUD Application on Kotlin / React JS multiplatform. Working with mongo DB via Hibernate.
+CRUD Application on Kotlin / React JS multiplatform. Working with mongoDB via Hibernate.
 
 ### Built With
 
@@ -9,6 +9,7 @@ CRUD Application on Kotlin / React JS multiplatform. Working with mongo DB via H
 * [![Hibernate][Hibernate.io]][Hibernate-url]
 * [![OpenApi][OpenApi.io]][OpenApi-url]
 * [![React][React.io]][React-url]
+* [![MongoDB][Mongo.io]][Mongo-url]
 
 
 ## Pre-installations
@@ -69,3 +70,6 @@ http://localhost:8080/v1/elemenet/
 
 [React-url]: https://reactjs.org/
 
+[Mongo.io]: https://img.shields.io/badge/MongoDb-black?style=for-the-badge&logo=mongodb
+
+[Mongo-url]: https://www.mongodb.com/
