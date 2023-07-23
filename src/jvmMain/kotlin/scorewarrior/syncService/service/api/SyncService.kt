@@ -5,7 +5,8 @@ import org.springframework.transaction.annotation.Transactional
 import scorewarrior.syncService.exception.ElementAlreadyExistException
 import scorewarrior.syncService.exception.ElementNotExistException
 import scorewarrior.syncservice.model.AddElement201ResponseDto
-import scorewarrior.syncservice.model.UpdateElementRequestDto
+import scorewarrior.syncservice.model.AddElementRequestDto
+import java.math.BigDecimal
 
 @Component
 @Transactional
@@ -17,7 +18,7 @@ interface SyncService {
     fun updateDraftElement(dto: Any, type: String, userId: Long)
 
     @Throws(ElementAlreadyExistException::class)
-    fun updateElement(dto: Any, type: String)
+    fun updateElement(elementName: String, type: String, userId: BigDecimal)
 
     @Throws(ElementNotExistException::class)
     fun deleteDraftElement(elementName: String, type: String, userId: Long)
@@ -26,8 +27,8 @@ interface SyncService {
     fun getAllEntities(type: String): List<String>
 
     @Throws(ElementNotExistException::class)
-    fun getDraftElementByName(elementName: String, type: String, userId: Long): UpdateElementRequestDto<Any>?
+    fun getDraftElementByName(elementName: String, type: String, userId: Long): AddElementRequestDto<Any>?
 
     @Throws(ElementNotExistException::class)
-    fun getElementByName(elementName: String, type: String): UpdateElementRequestDto<Any>?
+    fun getElementByName(elementName: String, type: String): AddElementRequestDto<Any>?
 }

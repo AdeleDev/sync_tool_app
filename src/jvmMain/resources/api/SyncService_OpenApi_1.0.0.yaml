@@ -88,11 +88,24 @@ paths:
       requestBody:
         description: Update profile
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/Hero'
-                - $ref: '#/components/schemas/Weapon'
+              required:
+                - name
+                - user_id
+              type: object
+              properties:
+                name:
+                  description: Name of hero
+                  type: string
+                  example: Packman
+                  minLength: 1
+                  maxLength: 100
+                user_id:
+                  description: id of editor
+                  type: number
+                  minimum: 1
+
         required: true
       responses:
         '200':

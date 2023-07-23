@@ -17,6 +17,7 @@ import scorewarrior.syncService.service.SyncServiceImpl
 import scorewarrior.syncService.service.api.SyncService
 import scorewarrior.syncservice.api.ElementApi
 import scorewarrior.syncservice.model.AddElement201ResponseDto
+import scorewarrior.syncservice.model.AddElementRequestDto
 import scorewarrior.syncservice.model.UpdateElementRequestDto
 import javax.validation.Valid
 
@@ -76,7 +77,7 @@ class SyncApiImpl : ElementApi {
         type: @Valid String,
         name: @Valid String,
         userId: @Valid Long
-    ): ResponseEntity<UpdateElementRequestDto<Any>> {
+    ): ResponseEntity<AddElementRequestDto<Any>> {
         return try {
             val element = service?.getDraftElementByName(name, type, userId)
             ResponseEntity.status(HttpStatus.OK).contentType(MediaType.MULTIPART_FORM_DATA).body(element)
@@ -92,7 +93,7 @@ class SyncApiImpl : ElementApi {
     override fun getElementByName(
         type: @Valid String,
         name: @Valid String
-    ): ResponseEntity<UpdateElementRequestDto<Any>> {
+    ): ResponseEntity<AddElementRequestDto<Any>> {
         return try {
             val element = service?.getElementByName(name, type)
             ResponseEntity.status(HttpStatus.OK).contentType(MediaType.MULTIPART_FORM_DATA).body(element)
@@ -132,23 +133,10 @@ class SyncApiImpl : ElementApi {
         }
     }
 
-    override fun updateElement(
-        type: String?,
-        name: String?,
-        mainImage: MultipartFile?,
-        icon: MultipartFile?,
-        entireIcon: MultipartFile?,
-        brokenIcon: MultipartFile?
-    ): ResponseEntity<Void> {
-        return try {
-            if (type == ElementTypes.HERO.value) {
-                val heroDto = HeroData(name!!, mainImage, icon)
-                service?.updateElement(heroDto, type)
+    override fun updateElement(type: String, body: UpdateElementRequestDto): ResponseEntity<Void> {
 
-            } else {
-                val weaponDto = WeaponData(name!!, mainImage, entireIcon, brokenIcon)
-                service?.updateElement(weaponDto, type!!)
-            }
+        return try {
+            service?.updateElement(body.name, type, body.userId)
             ResponseEntity.ok().build()
         } catch (e: ElementNotExistException) {
             e.printStackTrace()

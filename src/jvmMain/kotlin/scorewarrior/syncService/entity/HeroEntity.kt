@@ -10,7 +10,6 @@ class HeroEntity(
     @Size(min = 1, max = 200) var icon: String?,
 ) : ItemEntity(name) {
 
-//    var drafts: ArrayList<HeroEntity>? =null
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
