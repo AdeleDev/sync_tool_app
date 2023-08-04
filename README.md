@@ -21,9 +21,10 @@ and the pictures were found in the shared folder with content. (similar to git c
 * As drawer, I want to undo my changes. (similar to git revert)
 * Like any employee of the company, I want to view all current entities
 
-![2023-08-04 19_36_15-Sync Service.png](..%2F..%2FOneDrive%2FDesktop%2F2023-08-04%2019_36_15-Sync%20Service.png)
-![2023-08-04 19_36_43-Sync Service.png](..%2F..%2FOneDrive%2FDesktop%2F2023-08-04%2019_36_43-Sync%20Service.png)
-![2023-08-04 19_38_32-Sync Service.png](..%2F..%2FOneDrive%2FDesktop%2F2023-08-04%2019_38_32-Sync%20Service.png)
+![2023-08-04 19_38_32-Sync Service](https://github.com/AdeleDev/sync_tool_app/assets/135621284/b40f831a-1252-4de5-ba3f-b8b5f03aed47)
+![2023-08-04 19_36_15-Sync Service](https://github.com/AdeleDev/sync_tool_app/assets/135621284/061ec416-3d4e-4029-b7eb-6feb53da6fa2)
+![2023-08-04 19_36_43-Sync Service](https://github.com/AdeleDev/sync_tool_app/assets/135621284/4de683ae-fac7-443a-bff7-550dabd34553)
+
 
 ### Built With
 
